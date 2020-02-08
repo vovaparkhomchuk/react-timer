@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Button } from 'react-native';
+import TimerBtn from './TimerBtn'
 
 const styles = StyleSheet.create({
   timerContainer: {
@@ -10,6 +11,7 @@ const styles = StyleSheet.create({
 
 })
 
+
 export default class Timer extends React.Component {
   constructor() {
     super()
@@ -19,16 +21,13 @@ export default class Timer extends React.Component {
       breakTime: 60,
       normBreakTime: '',
       breakPart: false,
+      timerOn: false,
     }
   }
 
   componentDidMount() {
     this.correctTime();
   }
-
-  // startWorkTimer = () => {
-  //   this.interval = setInterval(this.decreaseTime, 1000);
-  // }
 
   decreaseTime = () => {
     this.setState(prevStates => ({
@@ -60,8 +59,19 @@ export default class Timer extends React.Component {
   }
 
   startTimer = () => {
-
+    if (!this.state.timerOn) {
+      this.interval = setInterval(this.decreaseTime, 1000)
+      this.setState(prevStates => ({
+        timerOn: !prevStates.timerOn,
+      }))
+    } else {
+      clearInterval(this.interval)
+      this.setState(prevStates => ({
+        timerOn: !prevStates.timerOn,
+      }))
+    }
   }
+
 
   render() {
     return (
@@ -69,8 +79,9 @@ export default class Timer extends React.Component {
         <Text style={{ fontSize: 42 }}>
           {this.state.normWorkTime}
         </Text>
-        {/* <Button title="start" onPress={} /> */}
+        <TimerBtn timerState={this.state.timerOn} timerFunc={this.startTimer} />
       </View>
     )
   }
 }
+
