@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Button } from 'react-native';
 import TimerBtn from './TimerBtn'
+import { vibrate } from '../utils'
 
 const styles = StyleSheet.create({
   timerContainer: {
@@ -8,20 +9,35 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-
+  bigFont: {
+    fontSize: 42,
+  }
 })
+
+
+const ActivityType = props => {
+  if (!props.phaze) {
+    return (
+      <Text style={styles.bigFont}>Work Time</Text>
+    )
+  } else {
+    return (
+      <Text style={styles.bigFont}>Break Time</Text>
+    )
+  }
+}
 
 
 export default class Timer extends React.Component {
   constructor() {
     super()
     this.state = {
-      workTime: 65,
-      normWorkTime: '',
-      breakTime: 60,
-      normBreakTime: '',
-      breakPart: false,
+      workT: 7,
+      breakT: 5,
+      currentTime: 0,
+      normcurrentTime: '',
       timerOn: false,
+      secondPhaze: false,
     }
   }
 
@@ -29,33 +45,50 @@ export default class Timer extends React.Component {
     this.correctTime();
   }
 
+  componentWillMount() {
+    if (!this.state.secondPhaze) {
+      this.setState({
+        currentTime: this.state.workT,
+      })
+    }
+  }
+
   decreaseTime = () => {
     this.setState(prevStates => ({
-      workTime: prevStates.workTime - 1,
+      currentTime: prevStates.currentTime - 1,
     }))
-    if (this.state.workTime === 0) {
+    if (this.state.currentTime === 0 && !this.state.secondPhaze) {
+      vibrate()
       clearInterval(this.interval);
+      this.setState({
+        secondPhaze: true,
+        currentTime: this.state.breakT,
+      })
+      this.interval = setInterval(this.decreaseTime, 1000)
+    } else if (this.state.currentTime === 0 && this.state.secondPhaze) {
+      vibrate()
+      clearInterval(this.interval);
+      this.setState({
+        timerOn: false,
+        currentTime: this.state.workT,
+        secondPhaze: false,
+      })
     }
-    console.log(this.state.workTime);
+    console.log(this.state.currentTime);
     this.correctTime();
   }
 
   correctTime = () => {
     const workMins =
-      this.state.workTime % 60 === 0 ? '00' :
-        (this.state.workTime % 60).toString().length === 1 ? '0' + (this.state.workTime % 60).toString() :
-          (this.state.workTime % 60).toString();
-    const breakMins =
-      this.state.breakTime % 60 === 0 ? '00' :
-        (this.state.breakTime % 60).toString().length === 1 ? '0' + (this.state.breakTime % 60).toString() :
-          (this.state.breakTime % 60).toString();
+      this.state.currentTime % 60 === 0 ? '00' :
+        (this.state.currentTime % 60).toString().length === 1 ? '0' + (this.state.currentTime % 60).toString() :
+          (this.state.currentTime % 60).toString();
 
     this.setState(prevStates => ({
-      normWorkTime: (Math.floor(prevStates.workTime / 60)).toString() + ':' + workMins,
-      normBreakTime: (Math.floor(prevStates.breakTime / 60)).toString() + ':' + breakMins,
+      normcurrentTime: (Math.floor(prevStates.currentTime / 60)).toString() + ':' + workMins,
     }))
 
-    console.log(this.state)
+    console.log((Math.floor(this.currentTime / 60)).toString() + ':' + workMins)
   }
 
   startTimer = () => {
@@ -76,8 +109,9 @@ export default class Timer extends React.Component {
   render() {
     return (
       <View style={styles.timerContainer}>
-        <Text style={{ fontSize: 42 }}>
-          {this.state.normWorkTime}
+        <ActivityType phaze={this.state.secondPhaze} />
+        <Text style={styles.bigFont}>
+          {this.state.normcurrentTime}
         </Text>
         <TimerBtn timerState={this.state.timerOn} timerFunc={this.startTimer} />
       </View>
