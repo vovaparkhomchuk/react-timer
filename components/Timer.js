@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, Button } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import TimerBtn from "./TimerBtn";
 import { vibrate } from "../utils";
 
@@ -31,7 +31,8 @@ export default class Timer extends React.Component {
       currentTime: 0,
       normcurrentTime: "",
       timerOn: false,
-      secondPhaze: false
+      secondPhaze: false,
+      inputVal: ""
     };
   }
 
