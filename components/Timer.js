@@ -32,7 +32,8 @@ export default class Timer extends React.Component {
       normcurrentTime: "",
       timerOn: false,
       secondPhaze: false,
-      inputVal: ""
+      inputVal: "",
+      check: false
     };
   }
 
